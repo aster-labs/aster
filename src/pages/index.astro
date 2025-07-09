@@ -1,16 +1,23 @@
 ---
-
+import Layout from '@layouts/Layout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout>
+	<button>Test Action</button>
+</Layout>
+
+<script>
+import { actions } from 'astro:actions';
+
+const button = document.querySelector('button');
+button?.addEventListener('click', async () => {
+	const { data, error } = await actions.agent.register({
+		symbol: 'Test Agent',
+		faction: 'Test Faction'
+	});
+
+	if (!error) alert(data);
+
+	else if (error) alert(`${error.code}\n${error.message}`);
+});
+</script>
