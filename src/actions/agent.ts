@@ -3,6 +3,7 @@ import { z } from 'astro:schema';
 
 export const agent = {
     register: defineAction({
+        accept: 'form',
         input: z.object({
             symbol: z.string(),
             faction: z.string()
@@ -14,7 +15,10 @@ export const agent = {
                     message: 'Symbol and Faction must be provided.',
                 });
             }
-            return `Hello, ${input.symbol} from ${input.faction}.`;
+            return {
+                symbol: input.symbol,
+                faction: input.faction
+            }
         }
     })
 }

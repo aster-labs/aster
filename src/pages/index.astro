@@ -1,23 +1,60 @@
 ---
 import Layout from '@layouts/Layout.astro';
+
+export const prerender = false
+
+import { actions, isInputError } from 'astro:actions';
+
+const result = Astro.getActionResult(actions.agent.register);
+
+const inputErrors = isInputError(result?.error) ? result.error.fields : {};
+
+const factions = await fetch('https://api.spacetraders.io/v2/factions')
+    .then(response => response.json())
+    .then(response => response.data)
+    .catch(error => error);
 ---
 
 <Layout>
-	<button>Test Action</button>
+	<form method="POST" action={actions.agent.register}>
+		<div>
+			<label for="symbol">Callsign</label>
+			{inputErrors.symbol && <p class="error">Please enter a callsign.</p>}
+			<input type="text" name="symbol" id="symbol" required>
+		</div>
+
+		<div>
+			<label for="faction">Faction</label>
+			{inputErrors.faction && <p class="error">Please select a faction.</p>}
+			<select name="faction" id="faction">
+				<option value="">--</option>
+				{factions?.map((faction: { symbol: string; name: string; }) => {
+					return <option value={faction.symbol}>{faction.name}</option>
+				})}
+			</select>
+		</div>
+		
+		<button>Register</button>
+
+		{result && !result.error && (
+			<p>Successfully registered {result.data.symbol} to faction {result.data.faction}.</p>
+		)}
+	</form>
 </Layout>
 
-<script>
-import { actions } from 'astro:actions';
-
-const button = document.querySelector('button');
-button?.addEventListener('click', async () => {
-	const { data, error } = await actions.agent.register({
-		symbol: 'Test Agent',
-		faction: 'Test Faction'
-	});
-
-	if (!error) alert(data);
-
-	else if (error) alert(`${error.code}\n${error.message}`);
-});
-</script>
+<style>
+    form, form div {
+        display: flex;
+        gap: 0.5rem;
+        flex-flow: column nowrap;
+    }
+    form {
+        width: fit-content;
+    }
+    form div {
+        width: 100%;
+    }
+    form .error {
+        color: red;
+    }
+</style>
