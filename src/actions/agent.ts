@@ -15,9 +15,37 @@ export const agent = {
                     message: 'Symbol and Faction must be provided.',
                 });
             }
-            return {
-                symbol: input.symbol,
-                faction: input.faction
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${import.meta.env.ACCOUNT_TOKEN}`
+                },
+                body: JSON.stringify({
+                    symbol: input.symbol,
+                    faction: input.faction,
+                }),
+            };
+
+            try {
+                const response = await fetch('https://api.spacetraders.io/v2/register', options);
+                const data = await response.json();
+                if (data.error) {
+                    throw new ActionError({
+                        code: 'BAD_REQUEST',
+                        message: data.error.message
+                    });
+                }
+                return {
+                    agent: data.data.agent,
+                    faction: data.data.faction
+                };
+            } catch (error) {
+                throw new ActionError({
+                    code: 'BAD_REQUEST',
+                    message: error instanceof Error ? error.message : String(error),
+                });
             }
         }
     })

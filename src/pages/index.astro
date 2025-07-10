@@ -6,7 +6,7 @@ export const prerender = false
 import { actions, isInputError } from 'astro:actions';
 
 const result = Astro.getActionResult(actions.agent.register);
-
+console.log(result);
 const inputErrors = isInputError(result?.error) ? result.error.fields : {};
 
 const factions = await fetch('https://api.spacetraders.io/v2/factions')
@@ -20,7 +20,7 @@ const factions = await fetch('https://api.spacetraders.io/v2/factions')
 		<div>
 			<label for="symbol">Callsign</label>
 			{inputErrors.symbol && <p class="error">Please enter a callsign.</p>}
-			<input type="text" name="symbol" id="symbol" required>
+			<input type="text" name="symbol" id="symbol">
 		</div>
 
 		<div>
@@ -37,7 +37,11 @@ const factions = await fetch('https://api.spacetraders.io/v2/factions')
 		<button>Register</button>
 
 		{result && !result.error && (
-			<p>Successfully registered {result.data.symbol} to faction {result.data.faction}.</p>
+			<p>Successfully registered {result.data.agent.symbol} to faction {result.data.faction.name}.</p>
+		)}
+
+		{result && result.error && (
+			<p class="error">{result.error}.</p>
 		)}
 	</form>
 </Layout>
